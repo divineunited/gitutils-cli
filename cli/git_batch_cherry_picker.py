@@ -1,62 +1,53 @@
-"""
-This command cherry picks a commit to a bunch of branches and pushes that change to remote.
+"""Safely batch cherry-pick commits to different branches and push to remote."""
+
+from cli_utils import utils
+
+INTRO_TEXT__GIT_BATCH_CHERRY_PICK = """
+This command cherry picks a commit to a batch of branches and pushes that change to each branches remote.
 
 It is helpful when:
-- you have a chain of PRs where you need to make a change and apply it to the rest of the chain
-- you have some changes on your branch and you want to apply it to some shared branches
+- you have a commit on your branch and you want to apply it to some shared branches.
 """
-
-import subprocess
-
-
-def _run_command(cmd) -> tuple[int, str]:
-    result = subprocess.run(
-        cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE
-    )
-    # result.stderr.decode("utf-8"),
-    return (result.returncode, result.stdout.decode("utf-8"))
 
 
 def git_batch_cherry_picker():
-    commit = input("Please enter the commit id you would like to batch cherry-pick: ")
-    branches = input(
-        "Please enter branch names you would like to apply that commit to, in order & separated by commas: "
-    ).split(",")
-    current_branch = _run_command("git branch --show-current")[1].strip()
-    conflict_branches = []
+    """Entrypoint Cherry Picker"""
+    print(INTRO_TEXT__GIT_BATCH_CHERRY_PICK + "\n")
 
+    # Setup
+    current_branch = utils.get_current_branch()
+    conflict_branches = []
+    branches = []
+    remote_branches = utils.get_all_remote_branches_set()
+
+    # Accept Input
+    commit = utils.get_input_commit_from_user()
+    if not commit:
+        return
+    branches = utils.get_input_branches_from_user(remote_branches)
+    if not branches:
+        return
+
+    # Do the work:
     for branch in branches:
         branch = branch.strip()
-        print(f"\nApplying commit to {branch}...")
+        utils.checkout_and_pull_branch(branch)
 
-        _run_command(f"git checkout {branch}")
-        print(f"\n...Checked out {branch}")
-
-        _run_command(f"git pull origin {branch}")
-        print(f"\n...Pulled {branch}")
-
-        return_code = _run_command(f"git cherry-pick {commit}")
+        print(f"Cherry-picking commit into branch: {branch}")
+        return_code = utils.run_git_command(f"git cherry-pick {commit}")
         if return_code != 0:
             print(f"Conflict detected, skipping {branch}")
             conflict_branches.append(branch)
-            _run_command("git cherry-pick --abort")
+            utils.run_git_command("git cherry-pick --abort")
             continue
-        print(f"\n...Cherry-picked {commit:} to {branch:}")
+        print(f"...Cherry-picked {commit:} to {branch:}")
 
-        _run_command(f"git push origin {branch}")
-        print(f"\n...Pushed to remote: {branch}")
+        utils.push_branch_to_remote(branch)
 
-    _run_command(f"git checkout {current_branch}")
-    print(f"\nBack to original branch: {current_branch}")
-
-    if conflict_branches:
-        print(
-            "\nThere were conflicts with the following branches. Please manually resolve:"
-        )
-        for branch in conflict_branches:
-            print(branch)
-    else:
-        print(f"\nPerformed cherry-picking with no conflicts.")
+    # Clean up
+    utils.perform_clean_up(
+        original_branch=current_branch, conflict_branches=conflict_branches
+    )
 
 
 if __name__ == "__main__":

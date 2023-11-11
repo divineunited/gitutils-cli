@@ -101,3 +101,8 @@ There were conflicts with the following branches. Please manually resolve:
 DV-1563-backend-apis-for-client-p4
 ```
 
+# For Contributers
+- Clone the repo and create a branch
+- Create a virtualenv with Python >= 3.10.2
+- Test a command locally with the -m (module) flag, for instance: `python -m cli.git_batch_merger`
+- Run tests: `python -m unittest discover -s cli/tests`
