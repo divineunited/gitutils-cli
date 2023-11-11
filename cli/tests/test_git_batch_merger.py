@@ -11,10 +11,9 @@ class TestGitBatchMerger(unittest.TestCase):
         """Tests the happy path and also shows the print output"""
 
         # GIVEN:
-        # Mock the inputs for the function
+        # Mock the inputs
         mock_input.side_effect = ["master", "branch1", "branch2", ""]
-
-        # Mock the outputs for the _run_command function
+        # Mock the outputs
         mock_run_command.side_effect = [
             (0, "master"),  # output for the first call to get the current branch
             (
@@ -41,7 +40,7 @@ class TestGitBatchMerger(unittest.TestCase):
         # Assert that the mock functions were called with the correct arguments
         assert mock_input.call_args_list == [
             call(
-                "Please enter the first branch name or press ENTER for default of `master`: "
+                "Please enter the first branch name or press ENTER for default of current branch: "
             ),
             call("Please enter the next branch name or press ENTER to finish: "),
             call("Please enter the next branch name or press ENTER to finish: "),
@@ -93,7 +92,7 @@ class TestGitBatchMerger(unittest.TestCase):
         self, mock_print, mock_input, mock_run_command
     ):
         # GIVEN:
-        mock_input.side_effect = ["", ""]
+        mock_input.side_effect = ["master", ""]
         mock_run_command.side_effect = [
             (0, "master"),  # output for the first call to get the current branch
             (
@@ -117,10 +116,87 @@ class TestGitBatchMerger(unittest.TestCase):
         # GIVEN:
         mock_input.side_effect = ["", "foo", "bar", "foo", ""]
         mock_run_command.side_effect = [
-            (0, "master"),  # output for the first call to get the current branch
+            (0, "current_branch"),
             (
                 0,
                 "master\nremotes/origin/foo\nremotes/origin/bar\n",
+            ),  # output for the call to get all branches
+            (0, "current_branch"),  # empty input, so calls to get current branch
+        ]
+
+        # WHEN:
+        git_batch_merger.git_batch_merger()
+
+        # THEN:
+        user_branches_assertion = ["current_branch", "foo", "bar", "foo"]
+        mock_print.assert_any_call(
+            f"All the branches you enter must be unique. You entered: {user_branches_assertion}"
+        )
+
+    @patch("cli_utils.utils.run_git_command")
+    @patch("builtins.input")
+    @patch("builtins.print")
+    def test_git_batch_merger__handles_conflicts(
+        self, mock_print, mock_input, mock_run_command
+    ):
+        # GIVEN:
+        mock_input.side_effect = ["master", "branch1", "branch2", ""]
+        mock_run_command.side_effect = [
+            (0, "master"),  # output for the first call to get the current branch
+            (
+                0,
+                "master\nbranch1\nbranch2\n",
+            ),  # output for the call to get all branches
+            (0, ""),  # output for the call to checkout to master
+            (0, ""),  # output for the call to pull master
+            (0, ""),  # output for the call to checkout to branch1
+            (0, ""),  # output for the call to pull branch1
+            (0, ""),  # output for the call to merge master into branch1
+            (0, ""),  # output for the call to push branch1
+            (0, ""),  # output for the call to checkout to branch2
+            (0, ""),  # output for the call to pull branch2
+            (1, ""),  # output for the call to merge branch1 into branch2
+            (0, ""),  # output for the call to git merge --abort for conflict
+            (0, ""),  # output for the call to checkout to the original branch
+        ]
+
+        # WHEN:
+        git_batch_merger.git_batch_merger()
+
+        # THEN:
+        assert mock_run_command.call_args_list == [
+            call("git branch --show-current"),
+            call("git branch -a"),
+            call("git checkout master"),
+            call("git pull origin master"),
+            call("git checkout branch1"),
+            call("git pull origin branch1"),
+            call("git merge master"),
+            call("git push origin branch1"),
+            call("git checkout branch2"),
+            call("git pull origin branch2"),
+            call("git merge branch1"),
+            call("git merge --abort"),
+            call("git checkout master"),
+        ]
+        mock_print.assert_any_call(
+            "There were conflicts with the following branches. Please manually resolve:"
+        )
+        mock_print.assert_any_call("branch2")
+
+    @patch("cli_utils.utils.run_git_command")
+    @patch("builtins.input")
+    @patch("builtins.print")
+    def test_git_batch_merger__protects_from_merging_into_master(
+        self, mock_print, mock_input, mock_run_command
+    ):
+        # GIVEN:
+        mock_input.side_effect = ["branch1", "master", ""]
+        mock_run_command.side_effect = [
+            (0, "master"),  # output for the first call to get the current branch
+            (
+                0,
+                "master\nbranch1\nbranch2\n",
             ),  # output for the call to get all branches
         ]
 
@@ -128,9 +204,8 @@ class TestGitBatchMerger(unittest.TestCase):
         git_batch_merger.git_batch_merger()
 
         # THEN:
-        user_branches_assertion = ["master", "foo", "bar", "foo"]
         mock_print.assert_any_call(
-            f"All the branches you enter must be unique. You entered: {user_branches_assertion}"
+            "You cannot merge any branches into main or master. Main or Master can only be merged into other branches."
         )
 
 

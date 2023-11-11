@@ -1,7 +1,8 @@
 # Git Batch Utility Command Line Interface
 
-This python package is a CLI utility tool that helps you work faster with Github.
-You must be in an environment that is already authenticated with a remote Git repository.
+This python package is a CLI utility tool that helps you work faster with Github. 
+It supports batch commands to cherry-pick / merge / pull / push to multiple branches at once safely.
+Note: You must be in an environment that is already authenticated with a remote Git repository.
 
 
 Usage:

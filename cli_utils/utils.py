@@ -40,12 +40,12 @@ def get_input_branches_from_user(remote_branches: set[str]) -> list[str] | None:
     """Gets branches from user and checks that those branches are legit."""
     branches = []
     first_branch = input(
-        "Please enter the first branch name or press ENTER for default of `master`: "
+        "Please enter the first branch name or press ENTER for default of current branch: "
     ).strip()
     if not first_branch:
-        print("Using the default branch of `master` as the first branch.")
-        first_branch = "master"
-    if first_branch not in remote_branches:
+        first_branch = get_current_branch()
+        print(f"Using the current branch as the first branch: {first_branch}")
+    elif first_branch not in remote_branches:
         print(f"Branch {first_branch} does not exist. Stopping program.")
         return None
     branches.append(first_branch)

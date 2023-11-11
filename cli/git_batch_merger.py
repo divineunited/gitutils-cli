@@ -32,6 +32,12 @@ def git_batch_merger():
     if not branches:
         return
 
+    if ("main" in branches[1:]) or ("master" in branches[1:]):
+        print(
+            "You cannot merge any branches into main or master. Main or Master can only be merged into other branches."
+        )
+        return
+
     # Do the work:
     for i, branch in enumerate(branches):
         branch = branch.strip()

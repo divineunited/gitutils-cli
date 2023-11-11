@@ -28,13 +28,17 @@ def git_batch_cherry_picker():
     if not branches:
         return
 
+    if ("master" in branches) or ("main" in branches):
+        print("You cannot cherry-pick into `master` or `main` branches. Exiting.")
+        return
+
     # Do the work:
     for branch in branches:
         branch = branch.strip()
         utils.checkout_and_pull_branch(branch)
 
         print(f"Cherry-picking commit into branch: {branch}")
-        return_code = utils.run_git_command(f"git cherry-pick {commit}")
+        return_code, _ = utils.run_git_command(f"git cherry-pick {commit}")
         if return_code != 0:
             print(f"Conflict detected, skipping {branch}")
             conflict_branches.append(branch)
