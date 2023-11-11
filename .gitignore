@@ -122,3 +122,6 @@ ipython_config.py
 ### VisualStudioCode Patch ###
 # Ignore all local history of files
 .history
+
+### Binary Wheels
+dist/

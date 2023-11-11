@@ -8,14 +8,18 @@ Usage:
 ```
 pip install gitutils-cli
 
-git_batch_merger
+gitbatch_merge
+# Follow instructions on the prompt
+
+gitbatch_cherry-pick
+# Follow instructions on the prompt
 ```
 
 
 
 # Demo:
 ```
-git:(DV-1563-backend-apis-for-client-p1) ✗ python ./git_utils_cli/git_batch_merger.py
+git:(DV-1563-backend-apis-for-client-p1) ✗ gitbatch_merge
 
     This command safely batch merges changes from one branch to the next in order of input.
     It also pushes each branch to remote.
