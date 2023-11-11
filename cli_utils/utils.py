@@ -36,7 +36,10 @@ def get_input_commit_from_user() -> str | None:
     return commit
 
 
-def get_input_branches_from_user(remote_branches: set[str]) -> list[str] | None:
+def get_input_branches_from_user(
+    remote_branches: set[str],
+    allow_only_one_input_branch: bool = False,
+) -> list[str] | None:
     """Gets branches from user and checks that those branches are legit."""
     branches = []
     first_branch = input(
@@ -64,7 +67,7 @@ def get_input_branches_from_user(remote_branches: set[str]) -> list[str] | None:
 
         branches.append(branch)
 
-    if len(branches) < 2:
+    if len(branches) < 2 and not allow_only_one_input_branch:
         print("You must enter at least 2 branches.")
         return None
 

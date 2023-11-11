@@ -65,7 +65,7 @@ class TestGitBatchCherryPicker(unittest.TestCase):
     @patch("cli_utils.utils.run_git_command")
     @patch("builtins.input")
     @patch("builtins.print")
-    def test_git_batch_merger__protects_from_cherry_picking_to_master(
+    def test_git_batch_cherry_picker__protects_from_cherry_picking_to_master(
         self, mock_print, mock_input, mock_run_command
     ):
         # GIVEN:
@@ -86,6 +86,43 @@ class TestGitBatchCherryPicker(unittest.TestCase):
         mock_print.assert_any_call(
             "You cannot cherry-pick into `master` or `main` branches. Exiting."
         )
+
+    @patch("cli_utils.utils.run_git_command")
+    @patch("builtins.input")
+    @patch("builtins.print")
+    def test_git_batch_cherry_picker__allows_one_input_branch(
+        self, mock_print, mock_input, mock_run_command
+    ):
+        # GIVEN:
+        mock_input.side_effect = ["foo_commit", "branch1", ""]
+        mock_run_command.side_effect = [
+            (0, "master"),  # output for the first call to get the current branch
+            (
+                0,
+                "master\nbranch1\nbranch2\n",
+            ),  # output for the call to get all branches
+            (0, ""),  # output for the call to git rev-parse the commit
+            (0, ""),  # output for the call to checkout to branch1
+            (0, ""),  # output for the call to pull branch1
+            (0, ""),  # output for the call to cherry-pick to branch1
+            (0, ""),  # output for the call to push branch1
+            (0, ""),  # output for the call to checkout to the original branch
+        ]
+
+        # WHEN:
+        git_batch_cherry_picker.git_batch_cherry_picker()
+
+        # THEN:
+        assert mock_run_command.call_args_list == [
+            call("git branch --show-current"),
+            call("git branch -a"),
+            call("git rev-parse foo_commit"),
+            call("git checkout branch1"),
+            call("git pull origin branch1"),
+            call("git cherry-pick foo_commit"),
+            call("git push origin branch1"),
+            call("git checkout master"),
+        ]
 
 
 if __name__ == "__main__":

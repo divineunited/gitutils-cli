@@ -24,7 +24,10 @@ def git_batch_cherry_picker():
     commit = utils.get_input_commit_from_user()
     if not commit:
         return
-    branches = utils.get_input_branches_from_user(remote_branches)
+    branches = utils.get_input_branches_from_user(
+        remote_branches=remote_branches,
+        allow_only_one_input_branch=True,
+    )
     if not branches:
         return
 
