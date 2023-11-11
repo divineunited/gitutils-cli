@@ -10,10 +10,10 @@ Usage:
 pip install gitutils-cli
 
 gitutils-merge
-# Follow instructions on the prompt
+# Command that allows you to safely batch merge your changes up cascading branches
 
 gitutils-cherry-pick
-# Follow instructions on the prompt
+# Command that allows you to safely cherry-pick a change to a list of branches
 ```
 
 
