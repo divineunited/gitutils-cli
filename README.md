@@ -19,8 +19,13 @@ gitutils-cherry-pick
 
 
 # Demo:
+
+## `gitutils-merge`
+
+Safely handles conflicts:
+
 ```
-git:(DV-1563-backend-apis-for-client-p1) ✗ gitbatch_merge
+git:(DV-1563-backend-apis-for-client-p1) ✗ gitutils-merge
 
 This command safely batch merges changes from one branch to the next in order of input.
 It also pushes each branch to remote.
@@ -82,6 +87,49 @@ Back to original branch: DV-1563-backend-apis-for-client-p1
 
 There were conflicts with the following branches. Please manually resolve:
 DV-1563-backend-apis-for-client-p4
+```
+
+## `gitutils-cherry-pick`
+```
+gitutils-cherry-pick
+
+This command cherry picks a commit to a batch of branches and pushes that change to each branches remote.
+
+It is helpful when:
+- you have a commit on your branch and you want to apply it to some shared branches.
+
+
+Please enter the commit id you would like to batch cherry-pick: aa262461
+Please enter the first branch name or press ENTER for default of current branch: DV-1563-backend-apis-for-client-p2
+Please enter the next branch name or press ENTER to finish: DV-1563-backend-apis-for-client-p3
+Please enter the next branch name or press ENTER to finish: DV-1563-backend-apis-for-client-p4
+Please enter the next branch name or press ENTER to finish: 
+Checking out branch: DV-1563-backend-apis-for-client-p2...
+...Checked out DV-1563-backend-apis-for-client-p2
+Pulling branch: DV-1563-backend-apis-for-client-p2...
+...Pulled DV-1563-backend-apis-for-client-p2
+Cherry-picking commit into branch: DV-1563-backend-apis-for-client-p2
+...Cherry-picked aa262461 to DV-1563-backend-apis-for-client-p2
+Pushing branch to remote: DV-1563-backend-apis-for-client-p2...
+...Pushed to remote: DV-1563-backend-apis-for-client-p2
+Checking out branch: DV-1563-backend-apis-for-client-p3...
+...Checked out DV-1563-backend-apis-for-client-p3
+Pulling branch: DV-1563-backend-apis-for-client-p3...
+...Pulled DV-1563-backend-apis-for-client-p3
+Cherry-picking commit into branch: DV-1563-backend-apis-for-client-p3
+...Cherry-picked aa262461 to DV-1563-backend-apis-for-client-p3
+Pushing branch to remote: DV-1563-backend-apis-for-client-p3...
+...Pushed to remote: DV-1563-backend-apis-for-client-p3
+Checking out branch: DV-1563-backend-apis-for-client-p4...
+...Checked out DV-1563-backend-apis-for-client-p4
+Pulling branch: DV-1563-backend-apis-for-client-p4...
+...Pulled DV-1563-backend-apis-for-client-p4
+Cherry-picking commit into branch: DV-1563-backend-apis-for-client-p4
+...Cherry-picked aa262461 to DV-1563-backend-apis-for-client-p4
+Pushing branch to remote: DV-1563-backend-apis-for-client-p4...
+...Pushed to remote: DV-1563-backend-apis-for-client-p4
+Back to original branch: DV-1563-backend-apis-for-client-p1
+Performed command with no conflicts.
 ```
 
 # For Contributers
