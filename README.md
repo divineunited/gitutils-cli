@@ -9,10 +9,10 @@ Usage:
 ```
 pip install gitutils-cli
 
-gitbatch_merge
+gitutils-merge
 # Follow instructions on the prompt
 
-gitbatch_cherry-pick
+gitutils-cherry-pick
 # Follow instructions on the prompt
 ```
 

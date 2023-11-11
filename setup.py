@@ -9,8 +9,8 @@ setup(
     packages=find_packages(),
     entry_points={
         "console_scripts": [
-            "gitbatch_merge=cli.git_batch_merger:git_batch_merger",
-            "gitbatch_cherry-pick=cli.git_batch_cherry_picker:git_batch_cherry_picker",
+            "gitutils-merge=cli.git_batch_merger:git_batch_merger",
+            "gitutils-cherry-pick=cli.git_batch_cherry_picker:git_batch_cherry_picker",
         ],
     },
 )
