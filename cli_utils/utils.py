@@ -3,6 +3,11 @@
 import subprocess
 
 
+class ConflictHandleScenario:
+    Abort = "Abort"
+    Theirs = "Theirs"
+
+
 def run_git_command(cmd: str) -> tuple[int, str]:
     """Run a GIT subprocess command in a users terminal"""
     result = subprocess.run(
@@ -94,6 +99,37 @@ def push_branch_to_remote(branch: str) -> None:
     print(f"Pushing branch to remote: {branch}...")
     run_git_command(f"git push origin {branch}")
     print(f"...Pushed to remote: {branch}")
+
+
+def handle_conflicts(
+    prior_branch: str, current_branch: str, conflict_branches: list[str]
+) -> ConflictHandleScenario:
+    """
+    Git conflict handler. Mutates a list of conflict_branches
+    and returns ConflictHandleScenario decision
+    """
+    print(f"Conflict detected: {current_branch}")
+
+    decision = input(
+        f"Do you want to override changes from the current branch: {current_branch} with changes from prior branch {prior_branch}? \nType 'yes' if you are sure. \nENTER to safely ignore this conflict. \nCTRL+C to stop program."
+    )
+
+    conflict_decision = None
+
+    if decision.strip().lower() == "yes":
+        run_git_command("git checkout --theirs .")
+        run_git_command("git add .")
+        run_git_command(
+            f"git commit -m 'Resolved merge conflicts by accepting all changes from {prior_branch}'"
+        )
+        conflict_decision = ConflictHandleScenario.Theirs
+    else:
+        conflict_branches.append(current_branch)
+        run_git_command("git merge --abort")
+        conflict_decision = ConflictHandleScenario.Abort
+
+    assert conflict_decision
+    return conflict_decision
 
 
 def perform_clean_up(original_branch: str, conflict_branches: list[str]) -> None:

@@ -51,10 +51,13 @@ def git_batch_merger():
         print(f"Merging branch: {prior_branch} into branch: {branch}")
         return_code, _ = utils.run_git_command(f"git merge {prior_branch}")
         if return_code != 0:
-            print(f"Conflict detected, skipping {branch}")
-            conflict_branches.append(branch)
-            utils.run_git_command("git merge --abort")
-            continue
+            decision = utils.handle_conflicts(
+                prior_branch=prior_branch,
+                current_branch=branch,
+                conflict_branches=conflict_branches,
+            )
+            if decision == utils.ConflictHandleScenario.Abort:
+                continue
         print(f"...Merged branch: {prior_branch} into branch: {branch}")
 
         utils.push_branch_to_remote(branch)

@@ -136,11 +136,11 @@ class TestGitBatchMerger(unittest.TestCase):
     @patch("cli_utils.utils.run_git_command")
     @patch("builtins.input")
     @patch("builtins.print")
-    def test_git_batch_merger__handles_conflicts(
+    def test_git_batch_merger__handles_conflicts__abort_merge(
         self, mock_print, mock_input, mock_run_command
     ):
         # GIVEN:
-        mock_input.side_effect = ["master", "branch1", "branch2", ""]
+        mock_input.side_effect = ["master", "branch1", "branch2", "", "No"]
         mock_run_command.side_effect = [
             (0, "master"),  # output for the first call to get the current branch
             (
@@ -155,7 +155,7 @@ class TestGitBatchMerger(unittest.TestCase):
             (0, ""),  # output for the call to push branch1
             (0, ""),  # output for the call to checkout to branch2
             (0, ""),  # output for the call to pull branch2
-            (1, ""),  # output for the call to merge branch1 into branch2
+            (1, ""),  # output for the CONFLICT call to merge branch1 into branch2
             (0, ""),  # output for the call to git merge --abort for conflict
             (0, ""),  # output for the call to checkout to the original branch
         ]
@@ -183,6 +183,62 @@ class TestGitBatchMerger(unittest.TestCase):
             "There were conflicts with the following branches. Please manually resolve:"
         )
         mock_print.assert_any_call("branch2")
+
+    @patch("cli_utils.utils.run_git_command")
+    @patch("builtins.input")
+    @patch("builtins.print")
+    def test_git_batch_merger__handles_conflicts__merge_override_theirs(
+        self, mock_print, mock_input, mock_run_command
+    ):
+        # GIVEN:
+        mock_input.side_effect = ["master", "branch1", "branch2", "", "yes"]
+        mock_run_command.side_effect = [
+            (0, "master"),  # output for the first call to get the current branch
+            (
+                0,
+                "master\nbranch1\nbranch2\n",
+            ),  # output for the call to get all branches
+            (0, ""),  # output for the call to checkout to master
+            (0, ""),  # output for the call to pull master
+            (0, ""),  # output for the call to checkout to branch1
+            (0, ""),  # output for the call to pull branch1
+            (0, ""),  # output for the call to merge master into branch1
+            (0, ""),  # output for the call to push branch1
+            (0, ""),  # output for the call to checkout to branch2
+            (0, ""),  # output for the call to pull branch2
+            (1, ""),  # output for the CONFLICT call to merge branch1 into branch2
+            (0, ""),  # output for the call to git checkout --theirs
+            (0, ""),  # output for the call to git add .
+            (0, ""),  # output for the call to git commit -m 'resolve conflicts'
+            (0, ""),  # output for the call to push branch2
+            (0, ""),  # output for the call to checkout to the original branch
+        ]
+
+        # WHEN:
+        git_batch_merger.git_batch_merger()
+
+        # THEN:
+        assert mock_run_command.call_args_list == [
+            call("git branch --show-current"),
+            call("git branch -a"),
+            call("git checkout master"),
+            call("git pull origin master"),
+            call("git checkout branch1"),
+            call("git pull origin branch1"),
+            call("git merge master"),
+            call("git push origin branch1"),
+            call("git checkout branch2"),
+            call("git pull origin branch2"),
+            call("git merge branch1"),
+            call("git checkout --theirs ."),
+            call("git add ."),
+            call(
+                "git commit -m 'Resolved merge conflicts by accepting all changes from branch1'"
+            ),
+            call("git push origin branch2"),
+            call("git checkout master"),
+        ]
+        mock_print.assert_any_call("Performed command with no conflicts.")
 
     @patch("cli_utils.utils.run_git_command")
     @patch("builtins.input")
