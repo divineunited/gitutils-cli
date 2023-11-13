@@ -111,17 +111,23 @@ def handle_conflicts(
     print(f"Conflict detected: {current_branch}")
 
     decision = input(
-        f"Do you want to override changes from the current branch: {current_branch} with changes from prior branch {prior_branch}? \nType 'yes' if you are sure. \nENTER to safely ignore this conflict. \nCTRL+C to stop program."
+        f"Do you want to override changes from the current branch: {current_branch} with changes from prior branch {prior_branch}? \nType 'yes' if you are sure. \nENTER to safely ignore this conflict. \nor CTRL+C to stop program: "
     )
 
     conflict_decision = None
 
     if decision.strip().lower() == "yes":
+        print("...Handling conflicts using the --theirs strategy.")
         run_git_command("git checkout --theirs .")
+        print("...adding prior branch changes.")
         run_git_command("git add .")
+        print(
+            "...commiting changes. This might take a while if you have pre-commit running."
+        )
         run_git_command(
             f"git commit -m 'Resolved merge conflicts by accepting all changes from {prior_branch}'"
         )
+        print("...changes commited!")
         conflict_decision = ConflictHandleScenario.Theirs
     else:
         conflict_branches.append(current_branch)

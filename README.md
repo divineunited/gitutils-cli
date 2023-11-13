@@ -2,6 +2,7 @@
 
 This python package is a CLI utility tool that helps you work faster with Github. 
 It supports batch commands to cherry-pick / merge / pull / push to multiple branches at once safely.
+It also gracefully handles conflicts by allowing you to abort or override conflicts using predefined git strategies.
 Note: You must be in an environment that is already authenticated with a remote Git repository.
 
 
@@ -137,6 +138,3 @@ Performed command with no conflicts.
 - Create a virtualenv with Python >= 3.10.2
 - Test a command locally with the -m (module) flag, for instance: `python -m cli.git_batch_merger`
 - Run tests: `python -m unittest discover -s cli/tests`
-
-## TODO:
-- Handle conflicts dynamically
