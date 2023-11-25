@@ -35,10 +35,12 @@ def git_batch_cherry_picker():
         print("You cannot cherry-pick into `master` or `main` branches. Exiting.")
         return
 
+    pull_choice = utils.get_input_pull_config_from_user()
+
     # Do the work:
     for branch in branches:
         branch = branch.strip()
-        utils.checkout_and_pull_branch(branch)
+        utils.checkout_and_pull_branch(branch, pull_choice)
 
         print(f"Cherry-picking commit into branch: {branch}")
         return_code, _ = utils.run_git_command(f"git cherry-pick {commit}")

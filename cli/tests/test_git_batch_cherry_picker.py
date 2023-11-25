@@ -12,7 +12,7 @@ class TestGitBatchCherryPicker(unittest.TestCase):
 
         # GIVEN:
         # Mock the inputs for the function
-        mock_input.side_effect = ["foo_commit", "branch0", "branch1", ""]
+        mock_input.side_effect = ["foo_commit", "branch0", "branch1", "", "1"]
 
         # Mock the outputs for the _run_command function
         mock_run_command.side_effect = [
@@ -45,6 +45,9 @@ class TestGitBatchCherryPicker(unittest.TestCase):
             ),
             call("Please enter the next branch name or press ENTER to finish: "),
             call("Please enter the next branch name or press ENTER to finish: "),
+            call(
+                "Choose how you want to pull other branches onto your local: \n1. [Default] Rebase local changes onto remote before applying changes. Press ENTER or Input 1 to choose this. \n2. Reset to remote before applying changes. Input 2 to choose this. \n3. Input h or help to learn more about these commands."
+            ),
         ]
 
         assert mock_run_command.call_args_list == [
@@ -52,11 +55,11 @@ class TestGitBatchCherryPicker(unittest.TestCase):
             call("git branch -a"),
             call("git rev-parse foo_commit"),
             call("git checkout branch0"),
-            call("git pull origin branch0"),
+            call("git pull --rebase origin branch0"),
             call("git cherry-pick foo_commit"),
             call("git push origin branch0"),
             call("git checkout branch1"),
-            call("git pull origin branch1"),
+            call("git pull --rebase origin branch1"),
             call("git cherry-pick foo_commit"),
             call("git push origin branch1"),
             call("git checkout master"),
@@ -94,7 +97,7 @@ class TestGitBatchCherryPicker(unittest.TestCase):
         self, mock_print, mock_input, mock_run_command
     ):
         # GIVEN:
-        mock_input.side_effect = ["foo_commit", "branch1", ""]
+        mock_input.side_effect = ["foo_commit", "branch1", "", "1"]
         mock_run_command.side_effect = [
             (0, "master"),  # output for the first call to get the current branch
             (
@@ -118,7 +121,7 @@ class TestGitBatchCherryPicker(unittest.TestCase):
             call("git branch -a"),
             call("git rev-parse foo_commit"),
             call("git checkout branch1"),
-            call("git pull origin branch1"),
+            call("git pull --rebase origin branch1"),
             call("git cherry-pick foo_commit"),
             call("git push origin branch1"),
             call("git checkout master"),
