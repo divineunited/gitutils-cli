@@ -109,7 +109,7 @@ def get_input_branches_from_user(
     return branches
 
 
-def checkout_and_pull_branch(branch: str, pull_choice: PullConfigChoice = "") -> None:
+def checkout_and_pull_branch(branch: str, pull_choice: PullConfigChoice) -> None:
     """Git checkout and pull branch from remote"""
     print(f"Checking out branch: {branch}...")
     run_git_command(f"git checkout {branch}")
