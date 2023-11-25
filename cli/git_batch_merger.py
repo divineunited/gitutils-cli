@@ -38,10 +38,12 @@ def git_batch_merger():
         )
         return
 
+    pull_choice = utils.get_input_pull_config_from_user()
+
     # Do the work:
     for i, branch in enumerate(branches):
         branch = branch.strip()
-        utils.checkout_and_pull_branch(branch)
+        utils.checkout_and_pull_branch(branch, pull_choice)
 
         if i == 0:
             # There is nothing to merge into the first branch

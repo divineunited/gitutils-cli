@@ -12,7 +12,7 @@ class TestGitBatchMerger(unittest.TestCase):
 
         # GIVEN:
         # Mock the inputs
-        mock_input.side_effect = ["master", "branch1", "branch2", ""]
+        mock_input.side_effect = ["master", "branch1", "branch2", "", "1"]
         # Mock the outputs
         mock_run_command.side_effect = [
             (0, "master"),  # output for the first call to get the current branch
@@ -45,19 +45,22 @@ class TestGitBatchMerger(unittest.TestCase):
             call("Please enter the next branch name or press ENTER to finish: "),
             call("Please enter the next branch name or press ENTER to finish: "),
             call("Please enter the next branch name or press ENTER to finish: "),
+            call(
+                "Choose how you want to pull other branches onto your local: \n1. [Default] Rebase local changes onto remote before applying changes. Press ENTER or Input 1 to choose this. \n2. Reset to remote before applying changes. Input 2 to choose this. \n3. Input h or help to learn more about these commands."
+            ),
         ]
 
         assert mock_run_command.call_args_list == [
             call("git branch --show-current"),
             call("git branch -a"),
             call("git checkout master"),
-            call("git pull origin master"),
+            call("git pull --rebase origin master"),
             call("git checkout branch1"),
-            call("git pull origin branch1"),
+            call("git pull --rebase origin branch1"),
             call("git merge master"),
             call("git push origin branch1"),
             call("git checkout branch2"),
-            call("git pull origin branch2"),
+            call("git pull --rebase origin branch2"),
             call("git merge branch1"),
             call("git push origin branch2"),
             call("git checkout master"),
@@ -140,7 +143,7 @@ class TestGitBatchMerger(unittest.TestCase):
         self, mock_print, mock_input, mock_run_command
     ):
         # GIVEN:
-        mock_input.side_effect = ["master", "branch1", "branch2", "", "No"]
+        mock_input.side_effect = ["master", "branch1", "branch2", "", "2", "No"]
         mock_run_command.side_effect = [
             (0, "master"),  # output for the first call to get the current branch
             (
@@ -148,13 +151,16 @@ class TestGitBatchMerger(unittest.TestCase):
                 "master\nbranch1\nbranch2\n",
             ),  # output for the call to get all branches
             (0, ""),  # output for the call to checkout to master
-            (0, ""),  # output for the call to pull master
+            (0, ""),  # output for the call to fetch origin
+            (0, ""),  # output for the call to reset to master
             (0, ""),  # output for the call to checkout to branch1
-            (0, ""),  # output for the call to pull branch1
+            (0, ""),  # output for the call to fetch origin
+            (0, ""),  # output for the call to reset to branch1
             (0, ""),  # output for the call to merge master into branch1
             (0, ""),  # output for the call to push branch1
             (0, ""),  # output for the call to checkout to branch2
-            (0, ""),  # output for the call to pull branch2
+            (0, ""),  # output for the call to fetch origin
+            (0, ""),  # output for the call to reset to branch2
             (1, ""),  # output for the CONFLICT call to merge branch1 into branch2
             (0, ""),  # output for the call to git merge --abort for conflict
             (0, ""),  # output for the call to checkout to the original branch
@@ -168,13 +174,16 @@ class TestGitBatchMerger(unittest.TestCase):
             call("git branch --show-current"),
             call("git branch -a"),
             call("git checkout master"),
-            call("git pull origin master"),
+            call("git fetch origin"),
+            call("git reset --hard origin/master"),
             call("git checkout branch1"),
-            call("git pull origin branch1"),
+            call("git fetch origin"),
+            call("git reset --hard origin/branch1"),
             call("git merge master"),
             call("git push origin branch1"),
             call("git checkout branch2"),
-            call("git pull origin branch2"),
+            call("git fetch origin"),
+            call("git reset --hard origin/branch2"),
             call("git merge branch1"),
             call("git merge --abort"),
             call("git checkout master"),
@@ -191,7 +200,7 @@ class TestGitBatchMerger(unittest.TestCase):
         self, mock_print, mock_input, mock_run_command
     ):
         # GIVEN:
-        mock_input.side_effect = ["master", "branch1", "branch2", "", "yes"]
+        mock_input.side_effect = ["master", "branch1", "branch2", "", "1", "yes"]
         mock_run_command.side_effect = [
             (0, "master"),  # output for the first call to get the current branch
             (
@@ -222,13 +231,13 @@ class TestGitBatchMerger(unittest.TestCase):
             call("git branch --show-current"),
             call("git branch -a"),
             call("git checkout master"),
-            call("git pull origin master"),
+            call("git pull --rebase origin master"),
             call("git checkout branch1"),
-            call("git pull origin branch1"),
+            call("git pull --rebase origin branch1"),
             call("git merge master"),
             call("git push origin branch1"),
             call("git checkout branch2"),
-            call("git pull origin branch2"),
+            call("git pull --rebase origin branch2"),
             call("git merge branch1"),
             call("git checkout --theirs ."),
             call("git add ."),
