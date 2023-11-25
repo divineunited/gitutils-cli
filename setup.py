@@ -5,7 +5,7 @@ from setuptools import find_packages, setup
 
 setup(
     name="gitutils-cli",
-    version="0.4.01",
+    version="0.5.00",
     packages=find_packages(),
     entry_points={
         "console_scripts": [
