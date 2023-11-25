@@ -54,12 +54,14 @@ def get_input_pull_config_from_user() -> PullConfigChoice:
     choice = None
     while choice not in ("", "1", "2"):
         choice = input(
-            "Choose how you want to pull other branches onto your local: \n1. [Default] Rebase local changes onto remote before applying changes. Press ENTER or Input 1 to choose this. \n2. Reset to remote before applying changes. Input 2 to choose this. \n3. Input h or help to learn more about these commands."
+            "\nChoose how you want to pull other branches onto your local: \n1. [Default] Rebase local changes onto remote before applying changes. Press ENTER or Input 1 to choose this. \n2. Reset to remote before applying changes. Input 2 to choose this. \n3. Input h or help to learn more about these commands.\n"
         ).strip()
         if choice in ("h", "help"):
+            print("----Help Text----")
             print(
                 "1. This command will pull using the git pull --rebase origin branch option. \nThis rebasing can help avoid divergent branches. \nThe rebase operation works by 'replaying' your commits on top of the remote branch. \nIt rewrites the commmit history. \nIf the branch is shared and others might have based work off it, it's generally better not to do this. \nThis can cause issues for collaborators since we're writing history. \nIf it's just your branch, rebasing is useful to keep a clean commit history. \n2. Resetting to remote will git fetch origin and then git reset --hard origin/branch. \nIf you want to discard your local changes and make your branch identical to the remote branch, \nthis is a good option. \nIf your source of truth is already on remote, use this. \nWarning: if you haven't pushed to remote - you will lose work."
             )
+            print("-------")
     if choice == "" or choice == "1":
         return PullConfigChoice.RebaseLocalToRemote
     elif choice == "2":
@@ -181,4 +183,6 @@ def perform_clean_up(original_branch: str, conflict_branches: list[str]) -> None
         for branch in conflict_branches:
             print(branch)
     else:
+        print("\U0001F603")  # Smiley face
         print("Performed command with no conflicts.")
+        print("\U0001F603")
