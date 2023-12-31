@@ -46,7 +46,7 @@ class TestGitBatchMerger(unittest.TestCase):
             call("Please enter the next branch name or press ENTER to finish: "),
             call("Please enter the next branch name or press ENTER to finish: "),
             call(
-                "Choose how you want to pull other branches onto your local: \n1. [Default] Rebase local changes onto remote before applying changes. Press ENTER or Input 1 to choose this. \n2. Reset to remote before applying changes. Input 2 to choose this. \n3. Input h or help to learn more about these commands."
+                "\nChoose how you want to pull other branches onto your local: \n1. [Default] Rebase local changes onto remote before applying changes. Press ENTER or Input 1 to choose this. \n2. Reset to remote before applying changes. Input 2 to choose this. \n3. Input h or help to learn more about these commands.\n"
             ),
         ]
 
