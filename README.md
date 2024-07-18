@@ -21,6 +21,32 @@ gitutils-cherry-pick
 
 # Demo:
 
+## `gitutils-batch-pull`
+```
+This script will update all git repositories in the current directory.
+
+It will only check directories one level down
+and assumes there are no git repositories nested within sub-directories.
+
+Press 'Y' or 'Enter' to continue, or any other key to exit.
+y
+✅ Successfully pulled latest changes in ./gdoc-summaries
+Output for ./gdoc-summaries:
+Already up to date.
+
+🤔 Skipping ./gitutils-cli: Not on main or master branch.
+
+✅ Successfully pulled latest changes in ./jira-ticketer
+Output for ./jira-ticketer:
+Already up to date.
+
+✅ Successfully pulled latest changes in ./django
+Output for ./django:
+Already up to date.
+
+🚀 git batch pull completed.
+```
+
 ## `gitutils-merge`
 
 Safely handles conflicts:
